@@ -2,6 +2,9 @@
  * vue plugin to handle clicking away from the element
  * Original code from https://github.com/simplesmiler/vue-clickaway/blob/master/dist/vue-clickaway.js
  *
+ * The original code has been modified to be usable in browser environment with requirejs. The diff can be viewed
+ * at https://github.com/dmtri/vue-clickaway/commit/582561bcc07730b02c1903f2174c8ce6fbd1c5af
+ *
  * @author github:simplesmiler, modified by Duc Trinh
  * @date Spring 2017
  * All rights reserved.
@@ -13,9 +16,9 @@ define(function (require) {
   var $            = require('jquery'),
       Vue          = require('vue');
 
-    var HANDLER = '_vue_cli ckaway_handler';
+    var HANDLER = '_vue_clickaway_handler';
 
-    function bind(el, binding) {
+    var bind = function(el, binding) {
       unbind(el);
 
       var callback = binding.value;
@@ -51,19 +54,30 @@ define(function (require) {
       };
 
       document.documentElement.addEventListener('click', el[HANDLER], false);
-    }
+    };
 
-    function unbind(el) {
+    var unbind = function(el) {
       document.documentElement.removeEventListener('click', el[HANDLER], false);
       delete el[HANDLER];
-    }
+    };
 
-    Vue.directive('onClickaway', {
-      bind: bind,
-      update: function(el, binding) {
-        if (binding.value === binding.oldValue) return;
-        bind(el, binding);
-      },
-      unbind: unbind,
-    });
+/**
+ * Initialize onClickaway directive here
+ */
+    var initializeClickawayDirective = function() {
+      Vue.directive('onClickaway', {
+        bind: bind,
+        update: function(el, binding) {
+          if (binding.value === binding.oldValue) return;
+          bind(el, binding);
+        },
+        unbind: unbind,
+      });
+    };
+
+  return {
+    init: function() {
+      initializeClickawayDirective();
+    }
+  };
 })
